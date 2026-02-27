@@ -10,7 +10,10 @@ import cv2
 
 
 	# Capturing video through webcam 
-webcam = cv2.VideoCapture(0) 
+cap = cv2.VideoCapture(0) 
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, 0)
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT,0)
+frame_centre_x = 0 
 
 params = cv2.SimpleBlobDetector_Params()
 detector = cv2.SimpleBlobDetector_create(params)
@@ -22,13 +25,22 @@ while True:
 	
 	# Reading the video from the 
 	# webcam in image frames 
-	_, imageFrame = webcam.read() 
+
+	#_, imageFrame = webcam.read() 
+	ret, imageFrame = cap.read()
+
+	if not ret:
+		print("Failed to grab frame ")
+		continue
+	
 
 	# Convert the imageFrame in 
 	# BGR(RGB color space) to 
 	# HSV(hue-saturation-value) 
 	# color space 
+
 	hsvFrame = cv2.cvtColor(imageFrame, cv2.COLOR_BGR2HSV) 
+	#hsvFrame = cv2.cvtColor(imageFrame, cv2.COLOR_BGR2HSV)
 
 	# Set range for yellow color and 
 	# define mask 
@@ -85,4 +97,21 @@ while True:
 		break
 
 	cv2.imshow("Mask", fuel_mask)
+
+
+	largest_blob = 0 
+	largest_size = 0
+
+	for kp in keypoints:
+		if kp.size > largest_size:
+			largest_size = kp.size()
+			largest_blob = kp
+
+	if largest_blob is not None: 
+		x, y = largest_blob.pt
+		diameter = largest_blob.size
+
+		offset = x - frame_centre_x
+		cv2.circle(imageFrame, (int(x), int(y)), 5, (0,0,255), -1)
+
 
