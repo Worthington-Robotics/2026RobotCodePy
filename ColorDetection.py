@@ -16,6 +16,23 @@ cap.set(cv2.CAP_PROP_FRAME_HEIGHT,0)
 frame_centre_x = 0 
 
 params = cv2.SimpleBlobDetector_Params()
+
+
+params.filterByColor = True
+params.blobColor = 255
+
+params.filterByArea = True
+params.minArea = 10
+	
+params.filterByCircularity = True
+params.minCircularity = 0.1
+
+params.filterByConvexity = True
+params.minConvexity = 0.87
+
+params.filterByInertia = True 
+params.minInertiaRatio = 0.01
+
 detector = cv2.SimpleBlobDetector_create(params)
 ...
     #detector = cv2.SimpleBlobDetector_create(params)
@@ -62,26 +79,6 @@ while True:
 	
 
 
-	#params.minThreshold = 0
-	#params.maxThreshold = 60
-	#params.minRepeatability = 0
-
-	params.filterByColor = True
-	params.blobColor = 255
-
-	params.filterByArea = True
-	params.minArea = 10
-	
-	params.filterByCircularity = True
-	params.minCircularity = 0.1
-
-	params.filterByConvexity = True
-	params.minConvexity = 0.87
-
-	params.filterByInertia = True 
-	params.minInertiaRatio = 0.01
-
-
 	keypoints = detector.detect(fuel_mask)
 
 	drawBlobs = cv2.drawKeypoints(imageFrame, keypoints, np.array([]), (0,0,255),
@@ -92,26 +89,40 @@ while True:
 	# Program Termination 
 	cv2.imshow("Fuel Detection in Real-TIme", drawBlobs) 
 	if cv2.waitKey(10) & 0xFF == ord('q'): 
-		webcam.release() 
+		cap.release() 
 		cv2.destroyAllWindows() 
 		break
 
 	cv2.imshow("Mask", fuel_mask)
 
 
-	largest_blob = 0 
+	largest_blob = None
 	largest_size = 0
 
 	for kp in keypoints:
 		if kp.size > largest_size:
-			largest_size = kp.size()
+			largest_size = kp.size
 			largest_blob = kp
+
+	output = cv2.drawKeypoints(
+		imageFrame,
+		keypoints,
+		None,
+		(0,0,255),
+		cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS
+	)
 
 	if largest_blob is not None: 
 		x, y = largest_blob.pt
-		diameter = largest_blob.size
-
+		centre = largestblob.pt
+		radius = largest_blob.size/2
+		color = (0, 0, 255)
+		thickness = -1
 		offset = x - frame_centre_x
-		cv2.circle(imageFrame, (int(x), int(y)), 5, (0,0,255), -1)
 
+		cv2.circle(imageFrame, (x, y), centre, color, thickness )
+		#cv2.circle(imageFrame, (int(x), int(y)), 5, (0,0,255), -1)
 
+		print(f"LARGEST BALL → X: {x:.1f}, Y: {y:.1f}, Offset: {offset:.1f}, Size: {diameter:.1f}")
+
+	cv2.imshow("ball", output)
