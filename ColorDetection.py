@@ -114,14 +114,16 @@ while True:
 
 	if largest_blob is not None: 
 		x, y = largest_blob.pt
-		centre = largestblob.pt
-		radius = largest_blob.size/2
+		diameter = largest_blob.size
+		radius = int(diameter/2)
 		color = (0, 0, 255)
 		thickness = -1
+
+		#Add a y-offset too
 		offset = x - frame_centre_x
 
-		cv2.circle(imageFrame, (x, y), centre, color, thickness )
-		#cv2.circle(imageFrame, (int(x), int(y)), 5, (0,0,255), -1)
+		cv2.circle(output, (int(x), int(y)), radius, color, thickness )
+	
 
 		print(f"LARGEST BALL → X: {x:.1f}, Y: {y:.1f}, Offset: {offset:.1f}, Size: {diameter:.1f}")
 
